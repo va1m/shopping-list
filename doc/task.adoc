@@ -1,0 +1,47 @@
+= Shopping list demo
+
+== ﻿Task Description
+
+As part of the interview process we are asking you to prepare the two tasks descnbed in this document. We do not expect you to take too much of your time. The intention is to evaluate the quality of your implementation, and you will have the possibility to explain your choices in a second technical interview. We are interested in your idea, approach, solution and code quality. Please feel free to attach any diagram or visualisation which you think helps to explain your approach.
+
+The challenge consists of two tasks:
+
+* Task 1: Design a Backend for a Shopping List App
+* Task 2: Implement at least one endpoint of your suggested solution
+
+You can send us the code either via a Github repository or attached zip file. You are also free to host it on your own or provided us a self-contained environment to run (executable jar with embedded data base, Docker environment, etc.). The solution can be in any JVM based language (Java, Scala, Groovy, etc.)
+
+== Introduction
+
+Let's assume there is a mobile shopping list app existing for Android and iOS. The app allows the user to do the following things so far:
+
+* Create a user account
+* create and manage multiple shopping lists
+* add items and remove items from the list
+* mark items as checked’
+* edit a quantity description text of each item
+* works both offline and online
+
+== Task 1: Design
+
+Please design a backend solution, that enables the app to synchronise the lists and list entries across devices and accounts. The system should be able to handle the following use cases:
+
+* One user can synchronise his/her lists across all his/her devices
+* One user can invite a fnend to collaborate on a list
+* User and friend both can add/update/delete items on the same list while being online or offline
+* Once a user opens the app {and is online), he/she sees a synchronised version of the list and items on the list. Please try to address some of the usual technical challenges on this task, such as...
+    * Which flow do you recommend for the synchronisation?
+    * Where and how do you handle merge conflicts?
+    * How does your API look like?
+    * There is an existing user log in system, which will provide reliable consistent ids for users.
+    * Invite a friend works from device to device.
+    * We will host this on AWS, feel free to use their services for your technical decisions This drawing summarise the scenano
+
+== Task 2: Implementation
+
+Please choose at least one API endpoint, that you just designed, and implement it:
+
+* Use a language / framework of your choice
+* Mock the User Store
+* Feel free to mock the database
+* Apply your usual coding and quality standards
