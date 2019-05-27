@@ -455,8 +455,3 @@ In the current version the following functions are implemented particularly:
 * working with shopping list collaborators - supported authorship of editings, conflict resolving with providing info about editors, owners mangement; not supported storing collaborators in the database.
 * security - no integration with an external user log in system. Basic authorization with no user roles is used.
 
-
-[.right]
-=== ©
-
-vadims.public.box@gmail.com +
