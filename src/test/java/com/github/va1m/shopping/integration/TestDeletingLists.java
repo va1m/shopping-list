@@ -1,4 +1,15 @@
-package com.github.va1m.shopping;
+package com.github.va1m.shopping.integration;
+
+import static com.github.va1m.shopping.integration.MasterData.MARK_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.MIRANDA_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.PASSWORD;
+import static com.github.va1m.shopping.integration.MasterData.SERVICE_URI;
+import static com.github.va1m.shopping.integration.MasterData.newListTemplate;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import com.github.va1m.shopping.entities.ListEntity;
 import org.junit.Test;
@@ -15,13 +26,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.github.va1m.shopping.MasterData.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
 /**
  * Contains tests for the deleting list cases
  */
@@ -34,17 +38,17 @@ public class TestDeletingLists {
 
     /** Tests normal case */
     @Test
-    public void testDeleteList() throws URISyntaxException, CloneNotSupportedException {
+    public void deleteList() throws URISyntaxException, CloneNotSupportedException {
 
         String itemUrl = addNewList();
 
         RequestEntity<Void> request = RequestEntity
-                .delete(new URI(itemUrl))
-                .build();
+            .delete(new URI(itemUrl))
+            .build();
 
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .exchange(request, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .exchange(request, String.class);
 
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
@@ -52,8 +56,8 @@ public class TestDeletingLists {
 
         // Try to retrieve deleted list
         ResponseEntity<String> getResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .getForEntity(itemUrl, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .getForEntity(itemUrl, String.class);
 
         assertThat(getResponse.getStatusCode(), is(HttpStatus.NOT_FOUND));
         assertThat(getResponse.getBody(), is(not(containsString("listItems"))));
@@ -62,34 +66,34 @@ public class TestDeletingLists {
 
     /** Test case with deleting a shopping list which belongs to another user */
     @Test
-    public void testDeleteListByWrongUser() throws URISyntaxException {
+    public void deleteListByWrongUser() throws URISyntaxException {
 
         String itemUri = SERVICE_URI + "1";
 
         RequestEntity<Void> request = RequestEntity
-                .delete(new URI(itemUri))
-                .build();
+            .delete(new URI(itemUri))
+            .build();
 
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .exchange(request, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .exchange(request, String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
 
     /** Test case with deleting a shopping list which nonexistent id */
     @Test
-    public void testDeleteListByWrongId() throws URISyntaxException {
+    public void deleteListByWrongId() throws URISyntaxException {
 
         String itemUri = SERVICE_URI + "13";
 
         RequestEntity<Void> request = RequestEntity
-                .delete(new URI(itemUri))
-                .build();
+            .delete(new URI(itemUri))
+            .build();
 
         ResponseEntity<String> response = restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .exchange(request, String.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .exchange(request, String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
@@ -104,8 +108,8 @@ public class TestDeletingLists {
         ListEntity newList = (ListEntity) newListTemplate.clone();
 
         ResponseEntity<String> response = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(SERVICE_URI, newList, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(SERVICE_URI, newList, String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.CREATED));
         return response.getHeaders().get(HttpHeaders.LOCATION).get(0);

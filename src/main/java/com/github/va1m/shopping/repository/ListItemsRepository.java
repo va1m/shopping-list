@@ -5,8 +5,9 @@ import com.github.va1m.shopping.entities.ListItemEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Repository to manipulate data in the 'list_items' table

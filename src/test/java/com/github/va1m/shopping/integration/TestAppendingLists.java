@@ -1,4 +1,17 @@
-package com.github.va1m.shopping;
+package com.github.va1m.shopping.integration;
+
+import static com.github.va1m.shopping.integration.MasterData.MIRANDA;
+import static com.github.va1m.shopping.integration.MasterData.MIRANDA_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.PASSWORD;
+import static com.github.va1m.shopping.integration.MasterData.SAMSUNG_TAB;
+import static com.github.va1m.shopping.integration.MasterData.SERVICE_URI;
+import static com.github.va1m.shopping.integration.MasterData.newListTemplate;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import com.github.va1m.shopping.entities.ListEntity;
 import com.github.va1m.shopping.entities.ListItemEntity;
@@ -7,19 +20,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import static com.github.va1m.shopping.MasterData.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Contains tests for the adding new list cases
@@ -33,13 +42,13 @@ public class TestAppendingLists {
 
     /** Tests normal case */
     @Test
-    public void testAddNewValidList() throws CloneNotSupportedException {
+    public void addNewValidList() throws CloneNotSupportedException {
 
         ListEntity newList = (ListEntity) newListTemplate.clone();
 
         ResponseEntity<String> postResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(SERVICE_URI, newList, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(SERVICE_URI, newList, String.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
         String newListUrl = postResponse.getHeaders().get(HttpHeaders.LOCATION).get(0);
@@ -48,8 +57,8 @@ public class TestAppendingLists {
 
         // Retrieve appended list
         ResponseEntity<ListEntity> getResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .getForEntity(newListUrl, ListEntity.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .getForEntity(newListUrl, ListEntity.class);
 
         ListEntity addedList = getResponse.getBody();
         assertThat(addedList.getOwner(), is(MIRANDA));
@@ -76,7 +85,7 @@ public class TestAppendingLists {
 
     /** Test case with shopping list with wrong id */
     @Test
-    public void testAddListWithWrongId() throws CloneNotSupportedException {
+    public void addListWithWrongId() throws CloneNotSupportedException {
 
         ListEntity newList = (ListEntity) newListTemplate.clone();
 
@@ -84,8 +93,8 @@ public class TestAppendingLists {
         newList.setId(1L);
 
         ResponseEntity<String> postResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(SERVICE_URI, newList, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(SERVICE_URI, newList, String.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.CREATED));
         String newListUrl = postResponse.getHeaders().get(HttpHeaders.LOCATION).get(0);
@@ -99,16 +108,16 @@ public class TestAppendingLists {
 
     /** Test case with null-list */
     @Test
-    public void testAddNullList() throws CloneNotSupportedException, URISyntaxException {
+    public void addNullList() throws URISyntaxException {
 
         RequestEntity<String> request = RequestEntity
-                .post(new URI(SERVICE_URI))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(null);
+            .post(new URI(SERVICE_URI))
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(null);
 
         ResponseEntity<String> postResponse = restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .exchange(request, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .exchange(request, String.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(postResponse.getHeaders().get(HttpHeaders.LOCATION), is(nullValue()));
@@ -125,12 +134,10 @@ public class TestAppendingLists {
         newList.setDevice(SAMSUNG_TAB);
 
         ResponseEntity<String> postResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(SERVICE_URI, newList, String.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(SERVICE_URI, newList, String.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.BAD_REQUEST));
         assertThat(postResponse.getHeaders().get(HttpHeaders.LOCATION), is(nullValue()));
-
     }
-
 }

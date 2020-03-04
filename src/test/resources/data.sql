@@ -3,8 +3,8 @@
 -- noinspection SqlResolveForFile
 
 -- Add two users
-INSERT INTO users (login, name, password) VALUES ('mark.johnson@yahoo.com', 'Mark Johnson', 'password');
-INSERT INTO users (login, name, password) VALUES ('miranda.johnson@yahoo.com', 'Miranda Johnson', 'password');
+INSERT INTO users (login, name, password) VALUES ('mark.johnson@yahoo.com', 'Mark Johnson', '{noop}password');
+INSERT INTO users (login, name, password) VALUES ('miranda.johnson@yahoo.com', 'Miranda Johnson', '{noop}password');
 
 -- Add devices
 INSERT INTO devices (user_id, name) VALUES (1, 'Samsung Galaxy S8');

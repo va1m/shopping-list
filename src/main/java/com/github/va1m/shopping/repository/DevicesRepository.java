@@ -16,7 +16,7 @@ public interface DevicesRepository extends CrudRepository<DeviceEntity, Long> {
     /**
      * Returns device by given id owned by given user.
      *
-     * @param id   device id
+     * @param id device id
      * @param user owner
      * @return a device if found, otherwise - null.
      */

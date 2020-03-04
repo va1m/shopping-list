@@ -11,12 +11,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.ws.rs.*;
+import java.net.URI;
+import java.util.Collection;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.Collection;
 
 /**
  * RESTful interface to work with the shopping list and its items.
@@ -25,8 +32,8 @@ import java.util.Collection;
  */
 @Component
 @Path("/lists")
-@Produces(MediaType.APPLICATION_JSON_UTF8_VALUE)
-@Consumes(MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Produces(MediaType.APPLICATION_JSON_VALUE)
+@Consumes(MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 @Transactional
 public class ShoppingListEndpoint {
@@ -59,9 +66,10 @@ public class ShoppingListEndpoint {
 
     /**
      * Returns a shopping list belonged to the logged in user by given id
+     *
      * @param id list id
      * @return shopping list if exist, otherwise - null
-     * @exception NotFoundException if the list with given id is not found or not belongs to the logged in user.
+     * @throws NotFoundException if the list with given id is not found or not belongs to the logged in user.
      */
     @GET
     @Path("{id}")
@@ -77,10 +85,11 @@ public class ShoppingListEndpoint {
 
     /**
      * Stores new list into database
+     *
      * @param list new list with items
      * @param uriInfo automatically injected {@link UriInfo}
      * @return response code 201 and URL to the appended list if success, otherwise - response code 400.
-     * @exception BadRequestException if the list parameter has invalid structure
+     * @throws BadRequestException if the list parameter has invalid structure
      */
     @POST
     @Transactional
@@ -96,12 +105,13 @@ public class ShoppingListEndpoint {
 
     /**
      * Updates existing in the database list. Overwrites items by new ones if they have "force" flag.
+     *
      * @param id list id
      * @param list list's data with items have to be stored.
      * @return UpdateResult structure with conflicted items and response code 200 if no errors,
-     *         otherwise - response code 400.
-     * @exception BadRequestException if the list parameter has invalid structure
-     * @exception NotFoundException if the list with given id is not found or not belongs to the logged in user.
+     * otherwise - response code 400.
+     * @throws BadRequestException if the list parameter has invalid structure
+     * @throws NotFoundException   if the list with given id is not found or not belongs to the logged in user.
      */
     @POST
     @Path("{id}")
@@ -118,9 +128,10 @@ public class ShoppingListEndpoint {
 
     /**
      * Deletes a shopping list with given id from the database
+     *
      * @param id shopping list id
      * @return response code 200 if success, otherwise - 400 if {@link NotFoundException} was thrown.
-     * @exception NotFoundException if the list with given id is not found or not belongs to the logged in user.
+     * @throws NotFoundException if the list with given id is not found or not belongs to the logged in user.
      */
     @DELETE
     @Path("{id}")

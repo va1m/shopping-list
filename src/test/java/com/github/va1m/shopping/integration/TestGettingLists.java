@@ -1,4 +1,21 @@
-package com.github.va1m.shopping;
+package com.github.va1m.shopping.integration;
+
+import static com.github.va1m.shopping.integration.MasterData.MARK_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.MIRANDA_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.PASSWORD;
+import static com.github.va1m.shopping.integration.MasterData.SERVICE_URI;
+import static com.github.va1m.shopping.integration.MasterData.referenceListCPUs;
+import static com.github.va1m.shopping.integration.MasterData.referenceListFlowers;
+import static com.github.va1m.shopping.integration.MasterData.referenceListGifts;
+import static com.github.va1m.shopping.integration.MasterData.referenceListHDDs;
+import static com.github.va1m.shopping.integration.MasterData.referenceListNew;
+import static com.github.va1m.shopping.integration.MasterData.referenceListRAMs;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import com.github.va1m.shopping.entities.ListEntity;
 import org.junit.Test;
@@ -9,12 +26,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static com.github.va1m.shopping.MasterData.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Contains tests for the getting list cases
@@ -39,11 +50,11 @@ public class TestGettingLists {
 
     /** Tests the normal case with getting all Mark's shopping lists */
     @Test
-    public void testGetMarksAllLists() {
+    public void getMarksAllLists() {
 
         ResponseEntity<ListEntity[]> response = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .getForEntity(SERVICE_URI, ListEntity[].class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .getForEntity(SERVICE_URI, ListEntity[].class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         ListEntity[] lists = response.getBody();
@@ -55,11 +66,11 @@ public class TestGettingLists {
 
     /** Tests the normal case with getting all Miranda's shopping lists */
     @Test
-    public void testGetMirandaAllLists() {
+    public void getMirandaAllLists() {
 
         ResponseEntity<ListEntity[]> response = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .getForEntity(SERVICE_URI, ListEntity[].class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .getForEntity(SERVICE_URI, ListEntity[].class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         ListEntity[] lists = response.getBody();
@@ -71,10 +82,10 @@ public class TestGettingLists {
 
     /** Tests the normal case with getting specific shopping list */
     @Test
-    public void testGetSpecificList() {
+    public void getSpecificList() {
         ResponseEntity<ListEntity> response = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .getForEntity(SERVICE_URI + "1", ListEntity.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .getForEntity(SERVICE_URI + "1", ListEntity.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         ListEntity list = response.getBody();
@@ -84,10 +95,10 @@ public class TestGettingLists {
 
     /** Test case nonexistent list id */
     @Test
-    public void testGetWrongIdList() {
+    public void getWrongIdList() {
         ResponseEntity<String> response = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .getForEntity(SERVICE_URI + "/13", String.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .getForEntity(SERVICE_URI + "/13", String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
         assertThat(response.getBody(), is(not(containsString("listItems"))));
@@ -95,10 +106,10 @@ public class TestGettingLists {
 
     /** Test case getting list belongs a different user */
     @Test
-    public void testGetOtherUserList() {
+    public void getOtherUserList() {
         ResponseEntity<String> response = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .getForEntity(SERVICE_URI + "/3", String.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .getForEntity(SERVICE_URI + "/3", String.class);
 
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
         assertThat(response.getBody(), is(not(containsString("listItems"))));

@@ -1,4 +1,22 @@
-package com.github.va1m.shopping;
+package com.github.va1m.shopping.integration;
+
+import static com.github.va1m.shopping.integration.MasterData.IPHONE;
+import static com.github.va1m.shopping.integration.MasterData.MACBOOK;
+import static com.github.va1m.shopping.integration.MasterData.MARK;
+import static com.github.va1m.shopping.integration.MasterData.MARK_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.MIRANDA_LOGIN;
+import static com.github.va1m.shopping.integration.MasterData.PASSWORD;
+import static com.github.va1m.shopping.integration.MasterData.SERVICE_URI;
+import static com.github.va1m.shopping.integration.MasterData.referenceListCPUs;
+import static com.github.va1m.shopping.integration.MasterData.referenceListGifts;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 import com.github.va1m.shopping.entities.DeviceEntity;
 import com.github.va1m.shopping.entities.ListEntity;
@@ -17,12 +35,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.github.va1m.shopping.MasterData.*;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Contains tests for the updating list cases
@@ -46,7 +58,7 @@ public class TestUpdatingLists {
 
         // add one item in the list
         addItem(updatedList,
-                new ListItemEntity(null, 0, "Cyrix", "Cyrix MII", true, 1, false, null, null, null));
+            new ListItemEntity(null, 0, "Cyrix", "Cyrix MII", true, 1, false, null, null, null));
 
         Iterator<ListItemEntity> iterator = updatedList.getListItems().iterator();
         // mark another item as deleted
@@ -57,18 +69,18 @@ public class TestUpdatingLists {
 
         final String itemUri = SERVICE_URI + updatedList.getId();
         ResponseEntity<UpdateResult> postResponse = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .postForEntity(itemUri, updatedList, UpdateResult.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .postForEntity(itemUri, updatedList, UpdateResult.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.OK));
         assertThat(postResponse.hasBody(), is(true));
-        assertThat(postResponse.getBody().conflictedItems, is(empty()));
-        assertThat(postResponse.getBody().newRemoteItems, is(empty()));
+        assertThat(postResponse.getBody().getConflictedItems(), is(empty()));
+        assertThat(postResponse.getBody().getNewRemoteItems(), is(empty()));
 
         // Retrieve edited list
         ResponseEntity<ListEntity> getResponse = this.restTemplate
-                .withBasicAuth(MARK_LOGIN, PASSWORD)
-                .getForEntity(itemUri, ListEntity.class);
+            .withBasicAuth(MARK_LOGIN, PASSWORD)
+            .getForEntity(itemUri, ListEntity.class);
 
         ListEntity remoteList = getResponse.getBody();
         assertThat(remoteList.getOwner(), is(MARK));
@@ -81,7 +93,7 @@ public class TestUpdatingLists {
         ListItemEntity[] originItems = updatedList.getListItems().toArray(new ListItemEntity[0]);
 
         for (int i = 0; i < remoteItems.length; i++) {
-            int expectedVersion = (i == 2) ? 0 : 1;
+            int expectedVersion = (i==2) ? 0:1;
             assertThat(remoteItems[i].getVersion(), is(expectedVersion));
             assertThat(remoteItems[i].getIsDeleted(), is(originItems[i].getIsDeleted()));
             assertThat(remoteItems[i].getChecked(), is(originItems[i].getChecked()));
@@ -91,7 +103,6 @@ public class TestUpdatingLists {
             assertThat(remoteItems[i].getAuthor(), is(MARK));
             assertThat(remoteItems[i].getDevice(), is(updatedList.getDevice()));
         }
-
     }
 
     /** Test case with conflicts and their resolving */
@@ -109,17 +120,17 @@ public class TestUpdatingLists {
 
         final String itemUri = SERVICE_URI + updatedList.getId();
         ResponseEntity<UpdateResult> postResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(itemUri, updatedList, UpdateResult.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(itemUri, updatedList, UpdateResult.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.OK));
         assertThat(postResponse.hasBody(), is(true));
-        assertThat(postResponse.getBody().newRemoteItems, is(empty()));
+        assertThat(postResponse.getBody().getNewRemoteItems(), is(empty()));
 
         ListItemEntity expectedItem = (ListItemEntity) item.clone();
         expectedItem.setVersion(1);
 
-        Collection<ListItemEntity> conflictedItems = postResponse.getBody().conflictedItems;
+        Collection<ListItemEntity> conflictedItems = postResponse.getBody().getConflictedItems();
         assertThat(conflictedItems.size(), is(1));
         assertThat(conflictedItems, hasItem(expectedItem));
 
@@ -128,13 +139,13 @@ public class TestUpdatingLists {
         assertThat(item.getVersion(), is(0));
 
         postResponse = this.restTemplate
-                .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
-                .postForEntity(itemUri, updatedList, UpdateResult.class);
+            .withBasicAuth(MIRANDA_LOGIN, PASSWORD)
+            .postForEntity(itemUri, updatedList, UpdateResult.class);
 
         assertThat(postResponse.getStatusCode(), is(HttpStatus.OK));
         assertThat(postResponse.hasBody(), is(true));
-        assertThat(postResponse.getBody().newRemoteItems, is(empty()));
-        assertThat(postResponse.getBody().conflictedItems, is(empty()));
+        assertThat(postResponse.getBody().getNewRemoteItems(), is(empty()));
+        assertThat(postResponse.getBody().getConflictedItems(), is(empty()));
 
     }
 
@@ -166,8 +177,8 @@ public class TestUpdatingLists {
 
         final String itemUri = SERVICE_URI + id;
         ResponseEntity<String> postResponse = this.restTemplate
-                .withBasicAuth(user, PASSWORD)
-                .postForEntity(itemUri, updatedList, String.class);
+            .withBasicAuth(user, PASSWORD)
+            .postForEntity(itemUri, updatedList, String.class);
 
         assertThat(postResponse.getStatusCode(), is(expectedStatus));
         assertThat(postResponse.getBody(), is(not(containsString("listItems"))));
@@ -177,8 +188,7 @@ public class TestUpdatingLists {
      * Add item in a list.
      */
     private void addItem(ListEntity list, ListItemEntity item) {
-        List<ListItemEntity> newList = new ArrayList<>();
-        newList.addAll(list.getListItems());
+        List<ListItemEntity> newList = new ArrayList<>(list.getListItems());
         newList.add(item);
         list.setListItems(newList);
     }

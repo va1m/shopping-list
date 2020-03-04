@@ -58,7 +58,7 @@ public class ShoppingListService {
     public ListEntity add(ListEntity list) {
         log.trace("Call add('{}')", list);
 
-        if (list == null) {
+        if (list==null) {
             throw new BadRequestException();
         }
 
@@ -86,6 +86,7 @@ public class ShoppingListService {
 
     /**
      * Returns all lists by logged in user
+     *
      * @return list of shopping lists with their items
      */
     public Collection<ListEntity> getAll() {
@@ -103,18 +104,18 @@ public class ShoppingListService {
      * @return update result - conflicted and new (on the backend) items updated early by
      * another collaborator or the same user but from another device
      * @throws BadRequestException if input list is not valid
-     * @throws NotFoundException if original list not found by given id
+     * @throws NotFoundException   if original list not found by given id
      */
     public UpdateResult update(ListEntity list) {
         log.trace("Call update('{}')", list);
 
-        if (list == null || list.getId() == null) {
+        if (list==null || list.getId()==null) {
             throw new BadRequestException();
         }
         UserEntity currentUser = getCurrentUser();
 
         ListEntity existingList = listsRepository.findOneByIdAndOwner(list.getId(), currentUser);
-        if (existingList == null) {
+        if (existingList==null) {
             throw new NotFoundException(list.getId(), currentUser.getLogin());
         }
 
@@ -131,7 +132,7 @@ public class ShoppingListService {
 
             ListItemEntity savedItem;
 
-            if (item.getId() == null) {
+            if (item.getId()==null) {
                 // Add new item
                 savedItem = saveItem(item, managedList, currentUser, managedDevice);
                 updatedItems.add(savedItem);
@@ -140,13 +141,13 @@ public class ShoppingListService {
                 // Update existing item
 
                 ListItemEntity managedItem = managedItems.stream()
-                        .filter(i -> item.getId().equals(i.getId()))
-                        .findAny()
-                        .orElseThrow(BadRequestException::new);
+                    .filter(i -> item.getId().equals(i.getId()))
+                    .findAny()
+                    .orElseThrow(BadRequestException::new);
 
-                if (managedItem.getVersion() != item.getVersion()) {
+                if (managedItem.getVersion()!=item.getVersion()) {
                     // conflict
-                    if (list.getForce() != null && list.getForce()) {
+                    if (list.getForce()!=null && list.getForce()) {
                         // Resolve conflict
                         item.setVersion(managedItem.getVersion());
                         savedItem = saveItem(item, managedList, currentUser, managedDevice);
@@ -166,13 +167,14 @@ public class ShoppingListService {
         });
 
         UpdateResult result = new UpdateResult();
-        result.conflictedItems = conflictedItems;
+        result.setConflictedItems(conflictedItems);
 
         // Check if DB has more items than in input list
-        result.newRemoteItems = managedItems.stream()
-                .filter(mi -> updatedItems.stream().noneMatch(ui -> mi.getId().equals(ui.getId())))
-                .filter(mi -> conflictedItems.stream().noneMatch(ci -> mi.getId().equals(ci.getId())))
-                .collect(Collectors.toList());
+        result.setNewRemoteItems(managedItems.stream()
+            .filter(mi -> updatedItems.stream().noneMatch(ui -> mi.getId().equals(ui.getId())))
+            .filter(mi -> conflictedItems.stream().noneMatch(ci -> mi.getId().equals(ci.getId())))
+            .collect(Collectors.toList())
+        );
 
         log.trace("update() returns '{}'", result);
         return result;
@@ -181,9 +183,9 @@ public class ShoppingListService {
     /**
      * Saves an item in the database
      *
-     * @param item   new or existing item to be saved
-     * @param list   the item belongs to
-     * @param user   an editor of the item
+     * @param item new or existing item to be saved
+     * @param list the item belongs to
+     * @param user an editor of the item
      * @param device where the item was edited
      * @return saved and managed item with its id
      */
@@ -192,7 +194,7 @@ public class ShoppingListService {
         log.trace("Call saveItem('{}', '{}', '{}', '{}')", item, list, user, device);
         item.setList(list);
         item.setAuthor(user);
-        if (item.getIsDeleted() == null) {
+        if (item.getIsDeleted()==null) {
             item.setIsDeleted(false);
         }
         item.setDevice(getManagedDevice(device, user));
@@ -203,6 +205,7 @@ public class ShoppingListService {
 
     /**
      * If the given device is new - stores it in the database, otherwise - returns managed device entity.
+     *
      * @param device new or deattached device entity
      * @param currentUser logged in user
      * @return managed device entity.
@@ -210,12 +213,12 @@ public class ShoppingListService {
     private DeviceEntity getManagedDevice(DeviceEntity device, UserEntity currentUser) {
         log.trace("Call getManagedDevice('{}', '{}')", device, currentUser);
         DeviceEntity managedDevice;
-        if (device.getId() == null) {
+        if (device.getId()==null) {
             device.setUser(currentUser);
             managedDevice = devicesRepository.save(device);
         } else {
             managedDevice = devicesRepository.findOneByIdAndUser(device.getId(), currentUser);
-            if (managedDevice == null) {
+            if (managedDevice==null) {
                 throw new BadRequestException("Device '{}' owned by current user '{}' not found", device, currentUser);
             }
             return managedDevice;
@@ -226,6 +229,7 @@ public class ShoppingListService {
 
     /**
      * Deletes shopping list from the database
+     *
      * @param id shopping list id
      * @throws NotFoundException if list with given id not found or belongs another user.
      */
@@ -234,7 +238,7 @@ public class ShoppingListService {
 
         UserEntity user = getCurrentUser();
         ListEntity list = listsRepository.findOneByIdAndOwner(id, user);
-        if (list != null) {
+        if (list!=null) {
             listsRepository.delete(list);
         } else {
             throw new NotFoundException(id, user.getLogin());
@@ -245,6 +249,7 @@ public class ShoppingListService {
 
     /**
      * Returns existing shopping list by its id
+     *
      * @param id list id
      * @return the list
      * @throws NotFoundException if list with given id not found
@@ -254,7 +259,7 @@ public class ShoppingListService {
 
         UserEntity user = getCurrentUser();
         ListEntity list = listsRepository.findOneByIdAndOwner(id, user);
-        if (list == null) {
+        if (list==null) {
             throw new NotFoundException(id, user.getLogin());
         }
         log.trace("get() returns '{}'", list);
@@ -263,6 +268,7 @@ public class ShoppingListService {
 
     /**
      * Returns the logged in user who performs current request to the server.
+     *
      * @return managed user entity
      */
     private UserEntity getCurrentUser() {
