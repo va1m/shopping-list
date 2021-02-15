@@ -22,7 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <hikari.version>4.0.1</hikari.version>
+        <hikari.version>4.0.2</hikari.version>
         <lombok.version>1.18.18</lombok.version>
     </properties>
 
